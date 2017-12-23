@@ -9,6 +9,7 @@ set(SRC_LIST
     IDispatcher.h
     IReceiver.h
     main.cpp
+    MultiQueueFacade.h
     MultiQueueProcessor.h
     SynchronousDispatcher.h
 )
