@@ -4,10 +4,10 @@
 #include <thread>
 #include <mutex>
 
-template<typename Key, typename Value>
+template <typename Key, typename Value>
 struct IConsumer
 {
-    virtual void Consume(Key id, const Value &value)
+    virtual void Consume(Key id, const Value& value)
     {
         id;
         value;
@@ -16,13 +16,15 @@ struct IConsumer
 
 #define MaxCapacity 1000
 
-template<typename Key, typename Value>
+template <typename Key, typename Value>
 class MultiQueueProcessor
 {
 public:
-    MultiQueueProcessor() :
-        running{ true },
-        th(std::bind(&MultiQueueProcessor::Process, this)) {}
+    MultiQueueProcessor()
+        : running{true}
+        , th(std::bind(&MultiQueueProcessor::Process, this))
+    {
+    }
 
     ~MultiQueueProcessor()
     {
@@ -35,9 +37,9 @@ public:
         running = false;
     }
 
-    void Subscribe(Key id, IConsumer<Key, Value> * consumer)
+    void Subscribe(Key id, IConsumer<Key, Value>* consumer)
     {
-        std::lock_guard<std::recursive_mutex> lock{ mtx };
+        std::lock_guard<std::recursive_mutex> lock{mtx};
         auto iter = consumers.find(id);
         if (iter == consumers.end())
         {
@@ -47,7 +49,7 @@ public:
 
     void Unsubscribe(Key id)
     {
-        std::lock_guard<std::recursive_mutex> lock{ mtx };
+        std::lock_guard<std::recursive_mutex> lock{mtx};
         auto iter = consumers.find(id);
         if (iter != consumers.end())
             consumers.erase(id);
@@ -55,7 +57,7 @@ public:
 
     void Enqueue(Key id, Value value)
     {
-        std::lock_guard<std::recursive_mutex> lock{ mtx };
+        std::lock_guard<std::recursive_mutex> lock{mtx};
         auto iter = queues.find(id);
         if (iter != queues.end())
         {
@@ -76,7 +78,7 @@ public:
 
     Value Dequeue(Key id)
     {
-        std::lock_guard<std::recursive_mutex> lock{ mtx };
+        std::lock_guard<std::recursive_mutex> lock{mtx};
         auto iter = queues.find(id);
         if (iter != queues.end())
         {
@@ -96,7 +98,7 @@ protected:
         while (running)
         {
             Sleep(10);
-            std::lock_guard<std::recursive_mutex> lock{ mtx };
+            std::lock_guard<std::recursive_mutex> lock{mtx};
             for (auto iter = queues.begin(); iter != queues.end(); ++iter)
             {
                 auto consumerIter = consumers.find(iter->first);
@@ -111,7 +113,7 @@ protected:
     }
 
 protected:
-    std::map<Key, IConsumer<Key, Value> *> consumers;
+    std::map<Key, IConsumer<Key, Value>*> consumers;
     std::map<Key, std::list<Value>> queues;
 
     bool running;
