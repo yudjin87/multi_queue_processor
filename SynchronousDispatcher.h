@@ -42,11 +42,18 @@ public:
         //
         // Also, it's MT best practice - don't hold mutex while calling 3rd party code
 
-        Consumer* consumer = consumerIter->second;
-        consumer->Consume(id, value);
+        std::weak_ptr<Consumer> consumer = consumerIter->second;
+        if (auto consumerSPtr = consumer.lock())
+        {
+            consumerSPtr->Consume(id, value);
+        }
     }
 
-    void Subscribe(Key id, Consumer* consumer) override
+    // Having shared ptr here is not good desicion, since it forces client to have all customer be shared_ptr
+    // However, shared_ptr has been chosen in sake of simplicity and error-proof
+    // Proper solution would be implementation of additional layer of "weak connections", which have shared/weak ptr
+    // semantic, but doesn' force consumer to be std::shared_ptr<>
+    void Subscribe(Key id, std::shared_ptr<Consumer> consumer) override
     {
         assert(consumer != nullptr);
 
@@ -69,6 +76,6 @@ public:
     }
 
 private:
-    std::unordered_map<Key, Consumer*> consumers;
+    std::unordered_map<Key, std::weak_ptr<Consumer>> consumers;
     std::mutex mtx;
 };

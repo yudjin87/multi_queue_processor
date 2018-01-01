@@ -64,6 +64,7 @@ protected:
         {
             std::pair<Key, Value> item = m_queue->Dequeue();
 
+            // race: StopProcessing() might reset m_running to false.
             if (m_running)
             {
                 m_receiver->Sink(item.first, item.second);

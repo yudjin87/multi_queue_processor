@@ -13,7 +13,7 @@ public:
     IDispatcher operator&(const IDispatcher&) = delete;
     virtual ~IDispatcher() = default;
 
-    virtual void Subscribe(Key id, Consumer* consumer) = 0;
+    virtual void Subscribe(Key id, std::shared_ptr<Consumer> consumer) = 0;
     virtual void Unsubscribe(Key id) = 0;
 
 protected:

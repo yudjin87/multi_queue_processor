@@ -30,7 +30,7 @@ public:
         loop.StopProcessing();
     }
 
-    void Subscribe(Key id, IConsumer<Key, Value>* consumer)
+    void Subscribe(Key id, IConsumerSPtr<Key, Value> consumer)
     {
         dispatcher.Subscribe(id, consumer);
     }
