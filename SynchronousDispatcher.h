@@ -31,18 +31,17 @@ public:
             return;
         }
 
+        std::weak_ptr<Consumer> consumer = consumerIter->second;
         lock.unlock();
 
         // It's a compromise betweed dead-lock (Consume might call unsubscribe)
-        // and life-time race (right now someone might call unsubscribe and kill
-        // consumer)
+        // and life-time race (right now someone might call unsubscribe)
         //
         // I've chosen 1 option, as it's implemented in boost, and it's a client
         // responsibility to synchronize life-time.
         //
         // Also, it's MT best practice - don't hold mutex while calling 3rd party code
-
-        std::weak_ptr<Consumer> consumer = consumerIter->second;
+        
         if (auto consumerSPtr = consumer.lock())
         {
             consumerSPtr->Consume(id, value);
